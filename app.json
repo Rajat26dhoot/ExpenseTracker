@@ -4,7 +4,7 @@
     "slug": "ExpenseTrackerApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/welcome.png",
+    "icon": "./assets/images/splashImage.png",
     "scheme": "expensetrackerapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/welcome.png",
+        "foregroundImage": "./assets/images/splashImage.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
@@ -21,14 +21,14 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/welcome.png"
+      "favicon": "./assets/images/splashImage.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/welcome.png",
+          "image": "./assets/images/splashImage.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

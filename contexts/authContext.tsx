@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be wrapped insid e AuthProvider");
+    throw new Error("useAuth must be wrapped inside AuthProvider");
   }
 
   return context;

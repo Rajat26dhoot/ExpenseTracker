@@ -52,7 +52,7 @@ const WalletItem = ({
         <View style={styles.nameContainer}>
           <Typo size={16}>{item?.name}</Typo>
           <Typo size={14} color={colors.neutral400}>
-            $ {item?.amount}
+            ₹ {item?.amount}
           </Typo>
         </View>
         <Icons.CaretRight

@@ -15,13 +15,6 @@ const Welcome = () => {
       <View style={styles.container}>
         {/* login button and images */}
         <View>
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={() => router.push("/(auth)/login")}
-          >
-            <Typo fontWeight={"500"}>Sign in</Typo>
-          </TouchableOpacity>
-
           <Animated.Image
             entering={FadeIn.duration(1000)}
             source={require("@/assets/images/welcome.png")}
@@ -66,8 +59,8 @@ const Welcome = () => {
             .damping(12)}
           style={styles.buttonContainer}
         >
-          <Button onPress={() => router.push("/(auth)/register")}>
-            <Typo size={22} color={colors.neutral900} fontWeight={"600"}>
+          <Button onPress={() => router.push('/(auth)/register')}>
+            <Typo size={22} color={colors.black} fontWeight={"600"}>
               Get started
             </Typo>
           </Button>
@@ -87,9 +80,9 @@ const styles = StyleSheet.create({
   },
   welcomeImage: {
     width: "100%",
-    height: verticalScale(300),
+    height: verticalScale(375),
     alignSelf: "center",
-    marginTop: verticalScale(100),
+    marginTop: verticalScale(25),
   },
   loginButton: {
     alignSelf: "flex-end",
@@ -98,18 +91,13 @@ const styles = StyleSheet.create({
   footer: {
     backgroundColor: colors.neutral900,
     alignItems: "center",
-    paddingTop: verticalScale(30),
-    paddingBottom: verticalScale(45),
+    paddingBottom: verticalScale(30),
     gap: spacingY._20,
-    shadowColor: "white",
-    shadowOffset: { width: 0, height: -10 },
-    elevation: 10,
-    shadowRadius: 25,
-    shadowOpacity: 0.15,
   },
   buttonContainer: {
     width: "100%",
     paddingHorizontal: spacingX._25,
-    marginVertical: verticalScale(30),
+    marginVertical: verticalScale(40),
+    paddingBottom: verticalScale(20),
   },
 });

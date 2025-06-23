@@ -15,12 +15,28 @@ import { useRouter } from "expo-router";
 import LogoutModal from "@/components/LogoutModal";
 import { signOut } from "firebase/auth";
 import { auth } from "../../config/firebase";
+import { LinearGradient } from "expo-linear-gradient";
+import MaskedView from "@react-native-masked-view/masked-view";
+
+const gradientColors = ['#C96DF0', '#97A2FB'];
+
+const GradientIconMask = ({ children }) => (
+  <MaskedView maskElement={<>{children}</>}>
+    <LinearGradient
+      colors={gradientColors}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{ width: 20, height: 20 }}
+    />
+  </MaskedView>
+);
 
 const Profile = () => {
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
-  const accountOptions: accountOptionType[] = [
+
+  const accountOptions = [
     {
       title: "Edit Profile",
       icon: <Icons.User size={26} color={colors.white} weight="fill" />,
@@ -30,35 +46,32 @@ const Profile = () => {
     {
       title: "Settings",
       icon: <Icons.GearSix size={26} color={colors.white} weight="fill" />,
-      // routeName: "/(modals)/profileModal",
       bgColor: "#059669",
     },
     {
       title: "Privacy Policy",
-      icon: <Icons.User size={26} color={colors.white} weight="fill" />,
-      // routeName: "/(modals)/profileModal",
+      icon: <Icons.LockKey size={26} color={colors.white} weight="fill" />, // Changed icon
       bgColor: colors.neutral600,
     },
     {
       title: "Logout",
-      icon: <Icons.User size={26} color={colors.white} weight="fill" />,
-      // routeName: "/(modals)/profileModal",
+      icon: <Icons.SignOut size={26} color={colors.white} weight="fill" />, // Changed icon
       bgColor: "#e11d48",
     },
   ];
-  const handlePress = (item: accountOptionType) => {
-    if (item.title == "Logout") {
-      setLogoutModalVisible(true);
-    }
 
-    if (item.routeName) {
-      router.push(item.routeName);
-    }
+  const handlePress = (item) => {
+    if (item.title == "Logout") setLogoutModalVisible(true);
+    if (item.routeName) router.push(item.routeName);
   };
 
   const handleLogout = async () => {
     await signOut(auth);
   };
+
+  // Helper: Get first letter of name, fallback to "U"
+  const firstLetter = user?.name ? user.name[0].toUpperCase() : "U";
+
   return (
     <ScreenWrapper>
       <View style={styles.container}>
@@ -66,17 +79,29 @@ const Profile = () => {
 
         {/* user Info */}
         <View style={styles.userInfo}>
-          {/* avatar */}
-          <View></View>
-          {/* user image */}
-          <Image
-            style={styles.avatar}
-            source={getProfileImage(user?.image)}
-            contentFit="cover"
-            transition={100}
-          />
-
-          {/* name & email */}
+          {/* Avatar with gradient border */}
+          <View style={styles.avatarContainer}>
+            <LinearGradient
+              colors={gradientColors}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.avatarGradient}
+            >
+              <View style={styles.avatarInner}>
+                {user?.image ? (
+                  <Image
+                    style={styles.avatarImage}
+                    source={getProfileImage(user?.image)}
+                    contentFit="cover"
+                    transition={100}
+                  />
+                ) : (
+                  <Text style={styles.avatarLetter}>{firstLetter}</Text>
+                )}
+              </View>
+            </LinearGradient>
+          </View>
+          {/* Name & email */}
           <View style={styles.nameContainer}>
             <Typo size={24} fontWeight={"600"} color={colors.neutral100}>
               {user?.name}
@@ -89,40 +114,39 @@ const Profile = () => {
 
         {/* account options */}
         <View style={styles.accountOptions}>
-          {accountOptions.map((item, index) => {
-            return (
-              <Animated.View
-                key={index.toString()}
-                entering={FadeInDown.delay(index * 50)
-                  .springify()
-                  .damping(14)}
-                style={styles.listItem}
+          {accountOptions.map((item, index) => (
+            <Animated.View
+              key={index.toString()}
+              entering={FadeInDown.delay(index * 50).springify().damping(14)}
+              style={styles.listItem}
+            >
+              <TouchableOpacity
+                style={styles.flexRow}
+                onPress={() => handlePress(item)}
               >
-                <TouchableOpacity
-                  style={styles.flexRow}
-                  onPress={() => handlePress(item)}
+                {/* icon */}
+                <View
+                  style={[
+                    styles.listIcon,
+                    { backgroundColor: item?.bgColor },
+                  ]}
                 >
-                  {/* icon */}
-                  <View
-                    style={[
-                      styles.listIcon,
-                      { backgroundColor: item?.bgColor },
-                    ]}
-                  >
-                    {item.icon && item.icon}
-                  </View>
-                  <Typo size={16} style={{ flex: 1 }} fontWeight={"500"}>
-                    {item.title}
-                  </Typo>
+                  {item.icon}
+                </View>
+                <Typo size={16} style={{ flex: 1 }} fontWeight={"500"}>
+                  {item.title}
+                </Typo>
+                {/* Gradient CaretRight */}
+                <GradientIconMask>
                   <Icons.CaretRight
                     size={verticalScale(20)}
                     weight="bold"
-                    color={colors.white}
+                    color="#fff"
                   />
-                </TouchableOpacity>
-              </Animated.View>
-            );
-          })}
+                </GradientIconMask>
+              </TouchableOpacity>
+            </Animated.View>
+          ))}
         </View>
       </View>
       <LogoutModal
@@ -136,6 +160,9 @@ const Profile = () => {
 
 export default Profile;
 
+const AVATAR_SIZE = verticalScale(135);
+const AVATAR_BORDER = 4;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -147,30 +174,33 @@ const styles = StyleSheet.create({
     gap: spacingY._15,
   },
   avatarContainer: {
-    position: "relative",
     alignSelf: "center",
   },
-  avatar: {
-    alignSelf: "center",
-    backgroundColor: colors.neutral300,
-    height: verticalScale(135),
-    width: verticalScale(135),
-    borderRadius: 200,
-    // overflow: "hidden",
-    // position: "relative", // optional
+  avatarGradient: {
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
+    borderRadius: AVATAR_SIZE / 2,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  editIcon: {
-    position: "absolute",
-    bottom: 5,
-    right: 8,
-    borderRadius: 50,
-    backgroundColor: colors.neutral100,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 4,
-    padding: 5,
+  avatarInner: {
+    width: AVATAR_SIZE - AVATAR_BORDER * 2,
+    height: AVATAR_SIZE - AVATAR_BORDER * 2,
+    borderRadius: (AVATAR_SIZE - AVATAR_BORDER * 2) / 2,
+    backgroundColor: colors.neutral800,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: (AVATAR_SIZE - AVATAR_BORDER * 2) / 2,
+  },
+  avatarLetter: {
+    fontSize: 48,
+    color: colors.white,
+    fontWeight: "700",
   },
   nameContainer: {
     gap: verticalScale(4),

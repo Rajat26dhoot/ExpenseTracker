@@ -11,6 +11,7 @@ export const colors = {
   black: "#000",
   rose: "#ef4444",
   green: "#16a34a",
+  darkblue: "#97A2FB",
   neutral50: "#fafafa",
   neutral100: "#f5f5f5",
   neutral200: "#e5e5e5",

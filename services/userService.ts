@@ -29,9 +29,6 @@ export const updateUser = async (
 
     // image upload pending
     return { success: true, message: "updated successfully" };
-    return {
-      success: true,
-    };
   } catch (error: any) {
     console.log("error updateing user: ", error);
     return {

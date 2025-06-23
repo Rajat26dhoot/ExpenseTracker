@@ -1,121 +1,216 @@
-import { colors, spacingY } from "../constants/theme";
-import { verticalScale } from "../utils/styling";
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import React from "react";
+import { Animated, StyleSheet, TouchableOpacity, Platform, View } from "react-native";
+import { CurvedBottomBarExpo } from "react-native-curved-bottom-bar";
 import * as Icons from "phosphor-react-native";
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import * as Haptics from "expo-haptics";
-const CustomTabs = ({ state, descriptors, navigation }: BottomTabBarProps) => {
-  // refactor
-  const tabarIcons: any = {
-    index: (isFocused: boolean) => {
-      return (
-        <Icons.House
-          size={verticalScale(30)}
-          weight={isFocused ? "fill" : "regular"}
-          color={isFocused ? colors.primary : colors.neutral400}
-        />
-      );
-    },
-    statistics: (isFocused: boolean) => {
-      return (
-        <Icons.ChartBar
-          size={verticalScale(30)}
-          weight={isFocused ? "fill" : "regular"}
-          color={isFocused ? colors.primary : colors.neutral400}
-        />
-      );
-    },
-    wallet: (isFocused: boolean) => {
-      return (
-        <Icons.Wallet
-          size={verticalScale(30)}
-          weight={isFocused ? "fill" : "regular"}
-          color={isFocused ? colors.primary : colors.neutral400}
-        />
-      );
-    },
-    profile: (isFocused: boolean) => {
-      return (
-        <Icons.User
-          size={verticalScale(30)}
-          weight={isFocused ? "fill" : "regular"}
-          color={isFocused ? colors.primary : colors.neutral400}
-        />
-      );
-    },
-  };
+import { colors, spacingY } from "@/constants/theme";
+import { verticalScale } from "@/utils/styling";
+import { useRouter } from "expo-router";
+import { LinearGradient } from 'expo-linear-gradient';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { Ionicons } from '@expo/vector-icons';
+
+// Import your screens
+import IndexScreen from "@/app/(tabs)/index";
+import StatisticsScreen from "@/app/(tabs)/statistics";
+import WalletScreen from "@/app/(tabs)/wallet";
+import ProfileScreen from "@/app/(tabs)/profile";
+
+// Gradient colors
+const gradientColors = ['#C96DF0', '#97A2FB'];
+
+const GradientIconMask = ({ children }) => (
+  <MaskedView maskElement={<>{children}</>}>
+    <LinearGradient
+      colors={gradientColors}
+      start={{ x: 0, y: 0.5 }}
+      end={{ x: 1, y: 0.5 }}
+      style={{
+        width: verticalScale(36),
+        height: verticalScale(36),
+      }}
+    />
+  </MaskedView>
+);
+
+// For tab icons
+const tabIcons = {
+  index: (isFocused) =>
+    isFocused ? (
+      <GradientIconMask>
+        <Icons.House size={verticalScale(30)} weight="fill" color="#fff" />
+      </GradientIconMask>
+    ) : (
+      <Icons.House
+        size={verticalScale(30)}
+        weight="regular"
+        color={colors.neutral400}
+      />
+    ),
+  statistics: (isFocused) =>
+    isFocused ? (
+      <GradientIconMask>
+        <Icons.ChartBar size={verticalScale(30)} weight="fill" color="#fff" />
+      </GradientIconMask>
+    ) : (
+      <Icons.ChartBar
+        size={verticalScale(30)}
+        weight="regular"
+        color={colors.neutral400}
+      />
+    ),
+  wallet: (isFocused) =>
+    isFocused ? (
+      <GradientIconMask>
+        <Icons.Wallet size={verticalScale(30)} weight="fill" color="#fff" />
+      </GradientIconMask>
+    ) : (
+      <Icons.Wallet
+        size={verticalScale(30)}
+        weight="regular"
+        color={colors.neutral400}
+      />
+    ),
+  profile: (isFocused) =>
+    isFocused ? (
+      <GradientIconMask>
+        <Icons.User size={verticalScale(30)} weight="fill" color="#fff" />
+      </GradientIconMask>
+    ) : (
+      <Icons.User
+        size={verticalScale(30)}
+        weight="regular"
+        color={colors.neutral400}
+      />
+    ),
+};
+
+const CurvedTabsNavigator = () => {
+  const router = useRouter();
+  const renderTabBar = ({ routeName, selectedTab, navigate }) => (
+    <TouchableOpacity
+      key={routeName}
+      onPress={() => navigate(routeName)}
+      style={styles.tabBarItem}
+      activeOpacity={0.7}
+    >
+      {tabIcons[routeName] && tabIcons[routeName](routeName === selectedTab)}
+    </TouchableOpacity>
+  );
+
   return (
-    <View style={[styles.tabar]}>
-      {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
-        const label: any =
-          options.tabBarLabel !== undefined
-            ? options.tabBarLabel
-            : options.title !== undefined
-            ? options.title
-            : route.name;
-
-        const isFocused = state.index === index;
-
-        const onPress = () => {
-          const event = navigation.emit({
-            type: "tabPress",
-            target: route.key,
-            canPreventDefault: true,
-          });
-
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name, route.params);
-          }
-        };
-
-        const onLongPress = () => {
-          navigation.emit({
-            type: "tabLongPress",
-            target: route.key,
-          });
-        };
-
-        return (
-          <TouchableOpacity
-            key={route.name}
-            accessibilityState={isFocused ? { selected: true } : {}}
-            accessibilityLabel={options.tabBarAccessibilityLabel}
-            testID={options.tabBarButtonTestID}
-            onPress={onPress}
-            onLongPress={onLongPress}
-            style={styles.tabarItem}
+    <CurvedBottomBarExpo.Navigator
+      type="DOWN"
+      circlePosition="CENTER"
+      style={styles.bottomBar}
+      shadowStyle={styles.shadow}
+      height={Platform.OS === "ios" ? verticalScale(73) : verticalScale(60)}
+      circleWidth={60}
+      bgColor={colors.neutral800}
+      initialRouteName="index"
+      borderTopLeftRight
+      // Remove borderColor/borderWidth from here; we'll do gradient border manually
+      tabBar={renderTabBar}
+      renderCircle={({ selectedTab, navigate }) => (
+        // Gradient border circle
+        <Animated.View style={styles.btnCircleUpWrapper}>
+          <LinearGradient
+            colors={gradientColors}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.gradientBorder}
           >
-            {tabarIcons[route.name] && tabarIcons[route.name](isFocused)}
-          </TouchableOpacity>
-        );
-      })}
-    </View>
+            <View style={styles.btnCircleUpInner}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  router.push("/(modals)/transactionModal");
+                }}
+                activeOpacity={0.7}
+              >
+                {/* Gradient-filled add icon */}
+                <GradientIconMask>
+                  <Ionicons name="add" size={36} color="#fff" />
+                </GradientIconMask>
+              </TouchableOpacity>
+            </View>
+          </LinearGradient>
+        </Animated.View>
+      )}
+    >
+      <CurvedBottomBarExpo.Screen
+        name="index"
+        position="LEFT"
+        component={IndexScreen}
+        options={{ headerShown: false }}
+      />
+      <CurvedBottomBarExpo.Screen
+        name="statistics"
+        position="LEFT"
+        component={StatisticsScreen}
+        options={{ headerShown: false }}
+      />
+      <CurvedBottomBarExpo.Screen
+        name="wallet"
+        position="RIGHT"
+        component={WalletScreen}
+        options={{ headerShown: false }}
+      />
+      <CurvedBottomBarExpo.Screen
+        name="profile"
+        position="RIGHT"
+        component={ProfileScreen}
+        options={{ headerShown: false }}
+      />
+    </CurvedBottomBarExpo.Navigator>
   );
 };
 
+const BORDER_WIDTH = 3; // Thickness of gradient border
+
 const styles = StyleSheet.create({
-  tabar: {
-    flexDirection: "row",
-    width: "100%",
-    height: Platform.OS === "ios" ? verticalScale(73) : verticalScale(60),
-    backgroundColor: colors.neutral800,
-    justifyContent: "space-around",
-    alignItems: "center",
-    borderTopColor: colors.neutral700,
-    borderTopWidth: 1,
+  shadow: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 10,
   },
-  tabarItem: {
-    marginBottom: Platform.OS === "ios" ? spacingY._10 : spacingY._5,
-    justifyContent: "center",
+  bottomBar: {},
+  btnCircleUpWrapper: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: "center",
+    justifyContent: "center",
+    bottom: 30,
+  },
+  gradientBorder: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  btnCircleUpInner: {
+    width: 60 - 2 * BORDER_WIDTH,
+    height: 60 - 2 * BORDER_WIDTH,
+    borderRadius: (60 - 2 * BORDER_WIDTH) / 2,
+    backgroundColor: colors.neutral800,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  button: {
+    width: 54,
+    height: 54,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tabBarItem: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: Platform.OS === "ios" ? spacingY._10 : spacingY._5,
   },
 });
 
-export default CustomTabs;
+export default CurvedTabsNavigator;

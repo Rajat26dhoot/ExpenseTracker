@@ -1,19 +1,11 @@
-import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import { Tabs } from "expo-router";
-import CustomTabs from "@/components/CustomTabs";
+import { NavigationContainer } from "@react-navigation/native";
+import CurvedTabsNavigator from "@/components/CustomTabs"; // Adjust the path as needed
 
-const TabsLayout = () => {
+export default function Layout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }} tabBar={CustomTabs}>
-      <Tabs.Screen name="index" />
-      <Tabs.Screen name="statistics" />
-      <Tabs.Screen name="wallet" />
-      <Tabs.Screen name="profile" />
-    </Tabs>
+    
+      <CurvedTabsNavigator />
+
   );
-};
-
-export default TabsLayout;
-
-const styles = StyleSheet.create({});
+}

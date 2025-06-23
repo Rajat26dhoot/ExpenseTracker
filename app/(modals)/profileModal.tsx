@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { colors, spacingX, spacingY } from "@/constants/theme";
-import { scale, verticalScale } from "@/utils/styling";
+import { verticalScale } from "@/utils/styling";
 import ModalWrapper from "@/components/ModalWrapper";
 import Header from "@/components/Header";
 import BackButton from "@/components/BackButton";
@@ -22,6 +22,13 @@ import { updateUser } from "@/services/userService";
 import { useAuth } from "../../contexts/authContext";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import { LinearGradient } from "expo-linear-gradient";
+
+const AVATAR_SIZE = verticalScale(135);
+const AVATAR_BORDER = 4;
+const PENCIL_SIZE = verticalScale(36); // Gradient border size for pencil icon
+const PENCIL_INNER = verticalScale(28); // Inner black circle size for pencil icon
+const GRADIENT_COLORS = ['#C96DF0', '#97A2FB'];
 
 const ProfileModal = () => {
   const { user, updateUserData } = useAuth();
@@ -41,12 +48,11 @@ const ProfileModal = () => {
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async () => {
-    let { name, image } = userData;
-
+    let { name } = userData;
     if (!name.trim()) {
       Alert.alert("User", "Please fill all the fields");
+      return;
     }
-
     setLoading(true);
     const res = await updateUser(user?.uid!, userData);
     setLoading(false);
@@ -57,15 +63,11 @@ const ProfileModal = () => {
   };
 
   const pickUserImageHandler = async () => {
-    // No permissions request is necessary for launching the image library
-
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
     if (status !== "granted") {
       alert("Sorry, we need media library permissions to make this work!");
       return;
     }
-
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsEditing: true,
@@ -77,6 +79,9 @@ const ProfileModal = () => {
     }
   };
 
+  // Show first letter of name if no avatar image
+  const firstLetter = userData?.name ? userData.name[0].toUpperCase() : "U";
+
   return (
     <ModalWrapper>
       <View style={styles.container}>
@@ -85,24 +90,49 @@ const ProfileModal = () => {
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
-        <ScrollView contentContainerStyle={styles.form}>
-          <View style={styles.avatarContainer}>
-            <Image
-              style={styles.avatar}
-              source={getProfileImage(userData.image)}
-              contentFit="cover"
-              transition={100}
-            />
-            <TouchableOpacity
-              style={styles.editIcon}
-              onPress={pickUserImageHandler}
+        <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
+          <TouchableOpacity
+            style={styles.avatarContainer}
+            onPress={pickUserImageHandler}
+            activeOpacity={0.8}
+          >
+            {/* Avatar gradient border */}
+            <LinearGradient
+              colors={GRADIENT_COLORS}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.avatarGradient}
             >
-              <Icons.Pencil
-                size={verticalScale(20)}
-                color={colors.neutral800}
-              />
-            </TouchableOpacity>
-          </View>
+              <View style={styles.avatarInner}>
+                {userData?.image ? (
+                  <Image
+                    style={styles.avatarImage}
+                    source={getProfileImage(userData.image)}
+                    contentFit="cover"
+                    transition={100}
+                  />
+                ) : (
+                  <Typo style={styles.avatarLetter}>{firstLetter}</Typo>
+                )}
+              </View>
+
+              {/* Pencil icon with gradient border and black background at bottom-right */}
+              <LinearGradient
+                colors={GRADIENT_COLORS}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.pencilGradient}
+              >
+                <View style={styles.pencilInner}>
+                  <Icons.Camera
+                    size={verticalScale(20)}
+                    color={colors.white}
+                  />
+                </View>
+              </LinearGradient>
+            </LinearGradient>
+          </TouchableOpacity>
+
           <View style={styles.inputContainer}>
             <Typo color={colors.neutral200}>Name</Typo>
             <Input
@@ -114,9 +144,13 @@ const ProfileModal = () => {
             />
           </View>
         </ScrollView>
-      </View>
-      <View style={styles.footer}>
-        <Button onPress={onSubmit} loading={loading} style={{ flex: 1 }}>
+
+        <Button
+          onPress={onSubmit}
+          loading={loading}
+          disabled={loading}
+          style={styles.updateButton}
+        >
           <Typo color={colors.black} fontWeight={"700"}>
             Update
           </Typo>
@@ -131,54 +165,70 @@ export default ProfileModal;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "space-between",
     paddingHorizontal: spacingX._20,
     paddingVertical: spacingY._30,
-  },
-  footer: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
-    paddingHorizontal: spacingX._20,
-    gap: scale(12),
-    paddingTop: spacingY._15,
-    borderTopColor: colors.neutral700,
-    marginBottom: spacingY._5,
-    borderTopWidth: 1,
+    backgroundColor: colors.neutral900,
   },
   form: {
     gap: spacingY._30,
     marginTop: spacingY._15,
+    paddingBottom: 30,
   },
   avatarContainer: {
+    alignSelf: "center",
     position: "relative",
-    alignSelf: "center",
   },
-  avatar: {
-    alignSelf: "center",
-    backgroundColor: colors.neutral300,
-    height: verticalScale(135),
-    width: verticalScale(135),
-    borderRadius: 200,
-    borderWidth: 1,
-    borderColor: colors.neutral500,
-    // overflow: "hidden",
-    // position: "relative",
+  avatarGradient: {
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
+    borderRadius: AVATAR_SIZE / 2,
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
   },
-  editIcon: {
+  avatarInner: {
+    width: AVATAR_SIZE - AVATAR_BORDER * 2,
+    height: AVATAR_SIZE - AVATAR_BORDER * 2,
+    borderRadius: (AVATAR_SIZE - AVATAR_BORDER * 2) / 2,
+    backgroundColor: colors.neutral800,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: (AVATAR_SIZE - AVATAR_BORDER * 2) / 2,
+  },
+  avatarLetter: {
+    fontSize: 48,
+    color: colors.white,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  pencilGradient: {
     position: "absolute",
-    bottom: spacingY._5,
-    right: spacingY._5,
-    borderRadius: 100,
-    backgroundColor: colors.neutral100,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 4,
-    padding: spacingY._7,
+    bottom: 8, // position at bottom-right corner
+    right: 8,
+    width: PENCIL_SIZE,
+    height: PENCIL_SIZE,
+    borderRadius: PENCIL_SIZE / 2,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2,
+  },
+  pencilInner: {
+    width: PENCIL_INNER,
+    height: PENCIL_INNER,
+    borderRadius: PENCIL_INNER / 2,
+    backgroundColor: colors.black,
+    alignItems: "center",
+    justifyContent: "center",
   },
   inputContainer: {
     gap: spacingY._10,
+  },
+  updateButton: {
+    marginTop: spacingY._15,
   },
 });

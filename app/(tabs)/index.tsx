@@ -13,6 +13,7 @@ import { limit, orderBy, where } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+
 const Home = () => {
   const { user } = useAuth();
   const router = useRouter();
@@ -34,12 +35,12 @@ const Home = () => {
       <View style={styles.container}>
         {/* header */}
         <View style={styles.header}>
-          <View style={{ gap: 4 }}>
-            <Typo size={16} color={colors.neutral400}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Typo size={20} color={colors.neutral400}>
               Hello
             </Typo>
             <Typo size={20} fontWeight={"500"}>
-              {user?.name}
+              {user?.name} 👋
             </Typo>
           </View>
           <TouchableOpacity
@@ -48,7 +49,7 @@ const Home = () => {
           >
             <Icons.MagnifyingGlass
               size={verticalScale(22)}
-              color={colors.neutral200}
+              color={colors.neutral100}
               weight="bold"
             />
           </TouchableOpacity>
@@ -70,7 +71,7 @@ const Home = () => {
           />
         </ScrollView>
 
-        <Button
+        {/* <Button
           style={styles.floatingButton}
           onPress={() => router.push("/(modals)/transactionModal")}
         >
@@ -79,7 +80,7 @@ const Home = () => {
             weight="bold"
             size={verticalScale(24)}
           />
-        </Button>
+        </Button> */}
       </View>
     </ScreenWrapper>
   );
@@ -91,7 +92,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: spacingX._20,
-    marginTop: verticalScale(8),
   },
   header: {
     flexDirection: "row",

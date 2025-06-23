@@ -1,22 +1,21 @@
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import React, { useRef, useState } from "react";
-import ScreenWrapper from "../../components/ScreenWrapper";
-import Typo from "../../components/Typo";
-import { colors, spacingX, spacingY } from "../../constants/theme";
-import { verticalScale } from "../../utils/styling";
-import BackButton from "../../components/BackButton";
-import Input from "../../components/Input";
+import ScreenWrapper from "@/components/ScreenWrapper";
+import Typo from "@/components/Typo";
+import { colors, spacingX, spacingY } from "@/constants/theme";
+import { verticalScale } from "@/utils/styling";
+import BackButton from "@/components/BackButton";
+import Input from "@/components/Input";
 import * as Icons from "phosphor-react-native";
-import Button from "../../components/Button";
+import Button from "@/components/Button";
 import { useRouter } from "expo-router";
-import { useAuth } from "../../contexts/authContext";
-
-const Login = () => {
+import { useAuth } from "@/contexts/authContext";
+export default function LoginScreen() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const { login } = useAuth();
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!emailRef.current || !passwordRef.current) {
@@ -32,6 +31,8 @@ const Login = () => {
       Alert.alert("Login", res?.message);
     }
   };
+  
+
   return (
     <ScreenWrapper>
       <View style={styles.container}>
@@ -59,7 +60,7 @@ const Login = () => {
             icon={
               <Icons.At
                 size={verticalScale(26)}
-                color={colors.neutral300}
+                color={colors.white}
                 weight="fill"
               />
             }
@@ -71,7 +72,7 @@ const Login = () => {
             icon={
               <Icons.Lock
                 size={verticalScale(26)}
-                color={colors.neutral300}
+                color={colors.white}
                 weight="fill"
               />
             }
@@ -91,7 +92,7 @@ const Login = () => {
         <View style={styles.footer}>
           <Typo size={15}> Don't have an account</Typo>
           <Pressable onPress={() => router.push("/(auth)/register")}>
-            <Typo size={15} fontWeight={"700"} color={colors.primary}>
+            <Typo size={15} fontWeight={"700"} color={colors.darkblue}>
               Sign up
             </Typo>
           </Pressable>
@@ -99,9 +100,8 @@ const Login = () => {
       </View>
     </ScreenWrapper>
   );
-};
+}
 
-export default Login;
 
 const styles = StyleSheet.create({
   container: {

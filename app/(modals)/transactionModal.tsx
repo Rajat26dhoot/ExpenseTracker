@@ -22,15 +22,22 @@ import {
   ScrollView,
   StyleSheet,
   View,
+  Dimensions,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
-import DatePicker from "react-native-date-picker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Input from "../../components/Input";
 import {
   createOrUpdateTransaction,
   deleteTransaction,
 } from "../../services/transactionService";
 
+
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const horizontalPadding = spacingX._20 * 2; // left + right
+const availableWidth = SCREEN_WIDTH - horizontalPadding;
+const trashButtonWidth = availableWidth * 0.15;
+const updateButtonWidth = availableWidth * 0.85 - scale(12);
 const TransactionModal = () => {
   const { user } = useAuth();
   const [transaction, setTransaction] = useState<TransactionType>({
@@ -69,10 +76,14 @@ const TransactionModal = () => {
     walletId: string;
   } = useLocalSearchParams();
 
-  const walletDropdownList = wallets.map((wallet) => ({
-    label: `${wallet?.name} ($${wallet?.amount})`,
+  const walletDropdownList = [
+  { label: "Cash", value: "cash" },  // default "Cash" option
+  ...wallets.map((wallet) => ({
+    label: `${wallet?.name} (₹${wallet?.amount})`,
     value: wallet?.id,
-  }));
+  })),
+];
+
 
   useEffect(() => {
     if (oldTransaction?.id) {
@@ -276,18 +287,16 @@ const TransactionModal = () => {
             )}
             {showDatePicker && (
               <View style={Platform.OS === "ios" && styles.iosDatePicker}>
-                <DatePicker
-                  theme="dark"
+                <DateTimePickerModal
+                  isVisible={showDatePicker}
                   mode="date"
                   maximumDate={new Date()}
-                  modal
-                  open={showDatePicker}
-                  date={new Date(transaction.date as Date)}
-                  onConfirm={onDateChange}
-                  onCancel={() => {
+                  date={transaction.date as Date}
+                  onConfirm={(date) => {
+                    onDateChange(date);
                     setShowDatePicker(false);
                   }}
-                  title={"Select transaction Date"}
+                  onCancel={() => setShowDatePicker(false)}
                 />
               </View>
             )}
@@ -322,12 +331,6 @@ const TransactionModal = () => {
 
               <Input
                 multiline
-                containerStyle={{
-                  flexDirection: "row",
-                  height: verticalScale(100),
-                  alignItems: "flex-start",
-                  paddingVertical: 15,
-                }}
                 value={transaction.description}
                 onChangeText={(value) => {
                   setTransaction((prev) => ({
@@ -357,28 +360,55 @@ const TransactionModal = () => {
           </View>
         </ScrollView>
       </View>
-      <View style={styles.footer}>
-        {oldTransaction?.id && !loading && (
-          <Button
-            onPress={showDelteAlert}
-            style={{
-              backgroundColor: colors.rose,
-              paddingHorizontal: spacingX._15,
-            }}
-          >
-            <Icons.Trash
-              color={colors.white}
-              size={verticalScale(24)}
-              weight="bold"
-            />
-          </Button>
-        )}
-        <Button loading={loading} style={{ flex: 1 }} onPress={onSubmit}>
-          <Typo color={colors.black} fontWeight={"700"}>
-            {oldTransaction?.id ? "Update" : "Submit"}
-          </Typo>
-        </Button>
-      </View>
+
+
+            <View style={styles.footer}>
+  {oldTransaction?.id ? (
+       <View style={{ flexDirection: "row", gap: scale(12), alignItems: "center" }}>
+  <Button
+    onPress={showDelteAlert}
+    style={{
+      width: trashButtonWidth,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    <Icons.Trash
+      color={colors.white}
+      size={verticalScale(24)}
+      weight="bold"
+    />
+  </Button>
+  <Button
+    loading={loading}
+    onPress={onSubmit}
+    style={{
+      width: updateButtonWidth,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    <Typo color={colors.black} fontWeight={"700"}>
+      Update Wallet
+    </Typo>
+  </Button>
+</View>
+
+  ) : (
+    // When adding, show only the add button full width
+    <Button
+      loading={loading}
+      onPress={onSubmit}
+      style={styles.updateButton}
+    >
+      <Typo color={colors.black} fontWeight={"700"}>
+        Add Wallet
+      </Typo>
+    </Button>
+  )}
+</View>
+      
+      
     </ModalWrapper>
   );
 };
@@ -396,11 +426,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacingY._40,
   },
   footer: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
     paddingHorizontal: spacingX._20,
-    gap: scale(12),
     paddingTop: spacingY._15,
     borderTopColor: colors.neutral700,
     marginBottom: spacingY._5,
@@ -500,4 +526,7 @@ const styles = StyleSheet.create({
     height: verticalScale(30),
     tintColor: colors.neutral300,
   },
+  updateButton: {
+      marginTop: spacingY._15,
+    },
 });

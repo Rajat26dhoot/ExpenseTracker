@@ -65,7 +65,7 @@ const Register = () => {
             icon={
               <Icons.User
                 size={verticalScale(26)}
-                color={colors.neutral300}
+                color={colors.white}
                 weight="fill"
               />
             }
@@ -76,7 +76,7 @@ const Register = () => {
             icon={
               <Icons.At
                 size={verticalScale(26)}
-                color={colors.neutral300}
+                color={colors.white}
                 weight="fill"
               />
             }
@@ -88,7 +88,7 @@ const Register = () => {
             icon={
               <Icons.Lock
                 size={verticalScale(26)}
-                color={colors.neutral300}
+                color={colors.white}
                 weight="fill"
               />
             }
@@ -105,7 +105,7 @@ const Register = () => {
         <View style={styles.footer}>
           <Typo size={15}> Already have an account?</Typo>
           <Pressable onPress={() => router.navigate("/(auth)/login")}>
-            <Typo size={15} fontWeight={"700"} color={colors.primary}>
+            <Typo size={15} fontWeight={"700"} color={colors.darkblue}>
               Login
             </Typo>
           </Pressable>

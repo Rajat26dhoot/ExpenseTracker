@@ -1,19 +1,27 @@
-import BackButton from "../../components/BackButton";
-import Button from "../../components/Button";
-import Header from "../../components/Header";
-import ImageUpload from "../../components/ImageUpload";
-import Input from "../../components/Input";
-import ModalWrapper from "../../components/ModalWrapper";
-import Typo from "../../components/Typo";
-import { colors, spacingX, spacingY } from "../../constants/theme";
-import { useAuth } from "../../contexts/authContext";
-import { createOrUpdateWallet, deleteWallet } from "../../services/walletService";
-import { WalletType } from "../../types";
-import { scale, verticalScale } from "../../utils/styling";
+import BackButton from "@/components/BackButton";
+import Button from "@/components/Button";
+import Header from "@/components/Header";
+import ImageUpload from "@/components/ImageUpload";
+import Input from "@/components/Input";
+import ModalWrapper from "@/components/ModalWrapper";
+import Typo from "@/components/Typo";
+import { colors, spacingX, spacingY } from "@/constants/theme";
+import { useAuth } from "@/contexts/authContext";
+import { createOrUpdateWallet, deleteWallet } from "@/services/walletService";
+import { WalletType } from "@/types";
+import { scale, verticalScale } from "@/utils/styling";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, View,Dimensions } from "react-native";
 import * as Icons from "phosphor-react-native";
+
+
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const horizontalPadding = spacingX._20 * 2; // left + right
+const availableWidth = SCREEN_WIDTH - horizontalPadding;
+const trashButtonWidth = availableWidth * 0.15;
+const updateButtonWidth = availableWidth * 0.85 - scale(12);
+
 
 const WalletModal = () => {
   const { user } = useAuth();
@@ -41,6 +49,7 @@ const WalletModal = () => {
 
     if (!name.trim()) {
       Alert.alert("Wallet", "Please fill all the fields");
+       return; 
     }
 
     const data: WalletType = { name, image, uid: user?.uid };
@@ -125,28 +134,57 @@ const WalletModal = () => {
           </View>
         </ScrollView>
       </View>
+
+
       <View style={styles.footer}>
-        {oldWallet?.id && !loading && (
-          <Button
-            onPress={showDelteAlert}
-            style={{
-              backgroundColor: colors.rose,
-              paddingHorizontal: spacingX._15,
-            }}
-          >
-            <Icons.Trash
-              color={colors.white}
-              size={verticalScale(24)}
-              weight="bold"
-            />
-          </Button>
-        )}
-        <Button onPress={onSubmit} loading={loading} style={{ flex: 1 }}>
-          <Typo color={colors.black} fontWeight={"700"}>
-            {oldWallet?.id ? "Update Wallet" : "Add Wallet"}
-          </Typo>
-        </Button>
-      </View>
+  {oldWallet?.id ? (
+    // When updating, show both buttons in a row with 20%/80% width
+    <View style={{ flexDirection: "row", gap: scale(12), alignItems: "center" }}>
+  <Button
+    onPress={showDelteAlert}
+    style={{
+      backgroundColor: colors.rose,
+      width: trashButtonWidth,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    <Icons.Trash
+      color={colors.white}
+      size={verticalScale(24)}
+      weight="bold"
+    />
+  </Button>
+  <Button
+    loading={loading}
+    onPress={onSubmit}
+    style={{
+      width: updateButtonWidth,
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    <Typo color={colors.black} fontWeight={"700"}>
+      Update Wallet
+    </Typo>
+  </Button>
+</View>
+
+  ) : (
+    // When adding, show only the add button full width
+    <Button
+      loading={loading}
+      onPress={onSubmit}
+      style={styles.updateButton}
+    >
+      <Typo color={colors.black} fontWeight={"700"}>
+        Add Wallet
+      </Typo>
+    </Button>
+  )}
+</View>
+
+
     </ModalWrapper>
   );
 };
@@ -161,11 +199,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacingY._30,
   },
   footer: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
     paddingHorizontal: spacingX._20,
-    gap: scale(12),
     paddingTop: spacingY._15,
     borderTopColor: colors.neutral700,
     marginBottom: spacingY._5,
@@ -205,5 +239,8 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     gap: spacingY._10,
+  },
+   updateButton: {
+      marginTop: spacingY._15,
   },
 });
