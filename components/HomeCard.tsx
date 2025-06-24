@@ -64,7 +64,7 @@ const HomeCard = () => {
           <View style={{ gap: verticalScale(5) }}>
             <View style={styles.incomeExpense}>
               <View style={styles.statsIcon}>
-                <Icons.ArrowDown
+                <Icons.ArrowUp
                   size={verticalScale(15)}
                   color={colors.black}
                   weight="bold"
@@ -85,7 +85,7 @@ const HomeCard = () => {
           <View style={{ gap: verticalScale(5) }}>
             <View style={styles.incomeExpense}>
               <View style={styles.statsIcon}>
-                <Icons.ArrowUp
+                <Icons.ArrowDown
                   size={verticalScale(15)}
                   color={colors.black}
                   weight="bold"

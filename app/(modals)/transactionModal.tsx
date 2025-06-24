@@ -76,13 +76,18 @@ const TransactionModal = () => {
     walletId: string;
   } = useLocalSearchParams();
 
-  const walletDropdownList = [
-  { label: "Cash", value: "cash" },  // default "Cash" option
+const walletDropdownList = [
   ...wallets.map((wallet) => ({
-    label: `${wallet?.name} (₹${wallet?.amount})`,
+    label: `${wallet?.name} ($${wallet?.amount})`,
     value: wallet?.id,
   })),
+  {
+    label: "Add Wallet",
+    value: "add_wallet",
+    icon: <Icons.PlusCircle color={colors.white} size={20} />, 
+  },
 ];
+
 
 
   useEffect(() => {
@@ -218,24 +223,29 @@ const TransactionModal = () => {
             </Typo>
 
             <Dropdown
-              style={styles.dropdownContainer}
-              activeColor={colors.neutral700}
-              placeholderStyle={styles.dropdownPlaceholder}
-              selectedTextStyle={styles.dropdownSelectedText}
-              iconStyle={styles.dropdownIcon}
-              data={walletDropdownList}
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
-              value={transaction.walletId}
-              onChange={(item) => {
-                setTransaction((prev) => ({ ...prev, walletId: item.value }));
-              }}
-              placeholder={"Select wallet"}
-              itemTextStyle={styles.dropdownItemText}
-              itemContainerStyle={styles.dropdownItemContainer}
-              containerStyle={styles.dropdownListContainer}
-            />
+  style={styles.dropdownContainer}
+  activeColor={colors.neutral700}
+  placeholderStyle={styles.dropdownPlaceholder}
+  selectedTextStyle={styles.dropdownSelectedText}
+  iconStyle={styles.dropdownIcon}
+  data={walletDropdownList}
+  maxHeight={300}
+  labelField="label"
+  valueField="value"
+  value={transaction.walletId}
+  onChange={(item) => {
+    if (item.value === "add_wallet") {
+      router.push("/(modals)/walletModal");
+      return;
+    }
+    setTransaction((prev) => ({ ...prev, walletId: item.value }));
+  }}
+  placeholder={"Select wallet"}
+  itemTextStyle={styles.dropdownItemText}
+  itemContainerStyle={styles.dropdownItemContainer}
+  containerStyle={styles.dropdownListContainer}
+/>
+
           </View>
 
           {/* expense category */}
@@ -389,7 +399,7 @@ const TransactionModal = () => {
     }}
   >
     <Typo color={colors.black} fontWeight={"700"}>
-      Update Wallet
+      Update Transaction
     </Typo>
   </Button>
 </View>
@@ -402,7 +412,7 @@ const TransactionModal = () => {
       style={styles.updateButton}
     >
       <Typo color={colors.black} fontWeight={"700"}>
-        Add Wallet
+        Add Transaction
       </Typo>
     </Button>
   )}

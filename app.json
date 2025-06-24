@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/splashImage.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.rajat26.ExpenseTrackerApp"
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +38,18 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "507da05b-e3fe-4cb7-bd31-03d5c5bb338b"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/507da05b-e3fe-4cb7-bd31-03d5c5bb338b"
     }
   }
 }
